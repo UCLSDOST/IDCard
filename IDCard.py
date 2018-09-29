@@ -1,21 +1,21 @@
 from sharedCode import send
 
+CSV_PATH = "Lab School HS Student card data 9-28-18.csv"
+
 print("Type 'exit' to exit the program")
+f = open(CSV_PATH)
 
-f = open('Gatsby-winter-formal.csv')
-
-lines = f.read().split("\r")
+lines = f.read().split("\n")
 
 RFID = {}
-print len(lines)
+print("Total students in database: " + str(len(lines)))
 for line in lines:
     if line != "":
         cols = line.replace('   ', '').split(",")
-        print cols[5]
-        RFID[str(cols[5])] = cols[:]
+        RFID[str(cols[2])] = cols[:]
 
 while True:
-    input_var = str(raw_input("Scan ID: "))
+    input_var = str(input("Scan ID: "))
 
     if input_var == 'exit':
         exit()
@@ -24,5 +24,4 @@ while True:
 
     for key in RFID:
         if(RFIDNum in key):
-            print RFID[key]
             send(RFID[key])
