@@ -1,27 +1,32 @@
-from sharedCode import send
+import sys
+if len(sys.argv) == 1:
+    print('Usage: python IDCard.py <KEY>\n\tKEY should be rfid, chicagoid, or studentid')
+    sys.exit()
+else:
+    KEY = sys.argv[1]
 
-CSV_PATH = "Lab School HS Student card data 9-28-18.csv"
+from sharedCode import send, CSV_PATH
+import pandas as pd
+
+try:
+    table = pd.read_csv(CSV_PATH).astype(str).set_index(KEY)
+except:
+    print(f'Invalid key {KEY}')
+    sys.exit(1)
 
 print("Type 'exit' to exit the program")
-f = open(CSV_PATH)
-
-lines = f.read().split("\n")
-
-RFID = {}
-print("Total students in database: " + str(len(lines)))
-for line in lines:
-    if line != "":
-        cols = line.replace('   ', '').split(",")
-        RFID[str(cols[2])] = cols[:]
+MAP = table.to_dict(orient='index')
+print(f'Total students in database: {table.shape[0]}')
 
 while True:
     input_var = str(input("Scan ID: "))
-
     if input_var == 'exit':
-        exit()
-
-    RFIDNum = input_var
-
-    for key in RFID:
-        if(RFIDNum in key):
-            send(RFID[key])
+        sys.exit()
+    key = input_var
+    if key in MAP:
+        record = MAP[key]
+        record[KEY] = key
+        print(f'Welcome {record["fname"]} {record["lname"]}')
+        send(MAP[key])
+    else:
+        print(f'{KEY} {key} not in database')
